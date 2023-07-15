@@ -3,7 +3,7 @@ from SimpleMathLexer import SimpleMathLexer
 from SimpleMathParser import SimpleMathParser
 
 # Obtén la entrada del usuario
-input_stream = InputStream(input('? '))
+input_stream = InputStream(input('=> '))
 
 # Crea un lexer con la entrada
 lexer = SimpleMathLexer(input_stream)
