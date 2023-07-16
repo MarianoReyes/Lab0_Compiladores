@@ -1,11 +1,13 @@
+import os
 from anytree.exporter import DotExporter
 from antlr4 import *
 from SimpleMathLexer import SimpleMathLexer
 from SimpleMathParser import SimpleMathParser
 from anytree import Node, RenderTree
+from antlr4.tree.Tree import TerminalNode
 
 # Obtén la entrada del usuario
-input_stream = InputStream(input('? '))
+input_stream = InputStream(input('Ingrese cadena a evaluar en árbol: '))
 
 # Crea un lexer con la entrada
 lexer = SimpleMathLexer(input_stream)
@@ -17,14 +19,12 @@ stream = CommonTokenStream(lexer)
 parser = SimpleMathParser(stream)
 
 # Aplica la regla inicial de la gramática (expr)
-tree = parser.expr()
+tree = parser.expr()# Linea a cambiar en funcion de la regla inicial del parser
 
 # Imprime el árbol de sintaxis (para depuración)
 print(tree.toStringTree(recog=parser))
 
 # Función recursiva para construir el árbol anytree
-
-
 def build_anytree(node, antlr_node):
     if isinstance(antlr_node, TerminalNode):
         value = antlr_node.getText()
@@ -35,14 +35,13 @@ def build_anytree(node, antlr_node):
         for child in antlr_node.getChildren():
             build_anytree(child_node, child)
 
-
 # Construye el árbol anytree a partir del árbol de sintaxis
 root = Node(parser.ruleNames[tree.getRuleIndex()])
 build_anytree(root, tree)
 
 # Imprime el árbol anytree
 for pre, fill, node in RenderTree(root):
-    print(f"{pre}{node.name}")
+    print(f'{pre}{node.name}')
 
 # Genera una representación visual del árbol anytree
-DotExporter(root).to_picture("tree.png")
+DotExporter(root).to_picture(f"{os.getcwd()}/tree.png")
