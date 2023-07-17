@@ -19,7 +19,7 @@ stream = CommonTokenStream(lexer)
 parser = first_grammarParser(stream)
 
 # Aplica la regla inicial de la gramática (expr)
-tree = parser.expression()# Linea a cambiar en funcion de la regla inicial del parser
+tree = parser.expr()# Linea a cambiar en funcion de la regla inicial del parser
 
 # Imprime el árbol de sintaxis (para depuración)
 print(tree.toStringTree(recog=parser))
