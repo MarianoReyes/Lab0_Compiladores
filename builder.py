@@ -11,20 +11,45 @@ def generate_main_file(directory):
         f.write(f"from {directory}Parser import {directory}Parser\n")
         f.write("from anytree import Node, RenderTree\n")
         f.write("from anytree.exporter import UniqueDotExporter\n")
+        f.write("import antlr4\n")
         f.write("from antlr4.tree.Tree import TerminalNode\n\n")
+
+        f.write('''
+class CustomErrorListener(antlr4.error.ErrorListener.ErrorListener):
+
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        # Customize the error message here
+        custom_msg = f"Error en la linea {line}, columna {column}, mensaje: {msg}"
+        print(custom_msg)
+
+    def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
+        pass
+
+    def reportAttemptingFullContext(self, recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs):
+        pass
+
+    def reportContextSensitivity(self, recognizer, dfa, startIndex, stopIndex, prediction, configs):
+        pass
+''')
 
         f.write("# Obtén la entrada del usuario\n")
         f.write(
             "input_stream = InputStream(input('Ingrese cadena a evaluar en árbol: '))\n\n")
 
+        f.write("error_listener = CustomErrorListener()")
+
         f.write("# Crea un lexer con la entrada\n")
-        f.write(f"lexer = {directory}Lexer(input_stream)\n\n")
+        f.write(f"lexer = {directory}Lexer(input_stream)\n")
+        f.write(f"lexer.removeErrorListeners()\n")
+        f.write(f"lexer.addErrorListener(error_listener)\n\n")
 
         f.write("# Crea un stream de tokens a partir del lexer\n")
         f.write("stream = CommonTokenStream(lexer)\n\n")
 
         f.write("# Crea un parser con el stream de tokens\n")
-        f.write(f"parser = {directory}Parser(stream)\n\n")
+        f.write(f"parser = {directory}Parser(stream)\n")
+        f.write(f"parser.removeErrorListeners()\n")
+        f.write(f"parser.addErrorListener(error_listener)\n\n")
 
         f.write("# Aplica la regla inicial de la gramática (expr)\n")
         f.write(
