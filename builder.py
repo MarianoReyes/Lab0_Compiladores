@@ -10,6 +10,7 @@ def generate_main_file(directory):
         f.write(f"from {directory}Lexer import {directory}Lexer\n")
         f.write(f"from {directory}Parser import {directory}Parser\n")
         f.write("from anytree import Node, RenderTree\n")
+        f.write("from anytree.exporter import UniqueDotExporter\n")
         f.write("from antlr4.tree.Tree import TerminalNode\n\n")
 
         f.write("# Obtén la entrada del usuario\n")
@@ -53,7 +54,9 @@ def generate_main_file(directory):
         f.write("    print(f'{pre}{node.name}')\n\n")
 
         f.write("# Genera una representación visual del árbol anytree\n")
-        f.write('DotExporter(root).to_picture(f"{os.getcwd()}/tree.png")')
+        f.write("dot_exporter = UniqueDotExporter(root)\n")
+        f.write('dot_exporter.to_picture("visual_tree.png")\n')
+        f.write('os.system(f"start visual_tree.png")\n')
 
 
 def list_g4_files():

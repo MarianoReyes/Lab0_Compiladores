@@ -4,6 +4,7 @@ from antlr4 import *
 from ArithmeticGrammarLexer import ArithmeticGrammarLexer
 from ArithmeticGrammarParser import ArithmeticGrammarParser
 from anytree import Node, RenderTree
+from anytree.exporter import UniqueDotExporter
 from antlr4.tree.Tree import TerminalNode
 
 # Obtén la entrada del usuario
@@ -47,4 +48,6 @@ for pre, fill, node in RenderTree(root):
     print(f'{pre}{node.name}')
 
 # Genera una representación visual del árbol anytree
-DotExporter(root).to_picture(f"{os.getcwd()}/tree.png")
+dot_exporter = UniqueDotExporter(root)
+dot_exporter.to_picture("visual_tree.png")
+os.system(f"start visual_tree.png")
