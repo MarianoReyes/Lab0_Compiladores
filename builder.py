@@ -19,10 +19,13 @@ def generate_main_file(directory, start_rule="expr"):
 
         f.write('''
 class CustomErrorListener(antlr4.error.ErrorListener.ErrorListener):
+    def __init__(self):
+        self.errors = []
+
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
         # Customize the error message here
         custom_msg = f"Error en la linea {line}, columna {column}, mensaje: {msg}"
-        print(custom_msg)
+        self.errors.append(custom_msg)
 
     def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
         pass
@@ -31,7 +34,10 @@ class CustomErrorListener(antlr4.error.ErrorListener.ErrorListener):
         pass
 
     def reportContextSensitivity(self, recognizer, dfa, startIndex, stopIndex, prediction, configs):
-        pass\n\n''')
+        pass
+                
+    def get_errors(self):
+        return self.errors\n\n''')
 
         # Below code to get file as input
         f.write("root = Tk()\n")
@@ -58,30 +64,41 @@ class CustomErrorListener(antlr4.error.ErrorListener.ErrorListener):
         f.write(
             f"tree = parser.{start_rule}()# Linea a cambiar en funcion de la regla inicial del parser\n\n")
 
-        f.write("\nprint(tree.toStringTree(recog=parser))\n\n")
+        f.write('''
+# tdos los errores se imprimen si hay
+errors = error_listener.get_errors()
+for error in errors:
+    print(error)
 
-        f.write("\ndef build_anytree(node, antlr_node):\n")
-        f.write("    if isinstance(antlr_node, TerminalNode):\n")
-        f.write("        value = antlr_node.getText()\n")
-        f.write("        Node(value, parent=node)\n")
-        f.write("    else:\n")
-        f.write(
-            "        rule_name = parser.ruleNames[antlr_node.getRuleIndex()]\n")
-        f.write("        child_node = Node(rule_name, parent=node)\n")
-        f.write("        for child in antlr_node.getChildren():\n")
-        f.write("            build_anytree(child_node, child)\n\n")
+if errors:
+    print("----------------------------------------------------------------------------------")
+    print("\\nYa que hay 1 o más errores no se armará el árbol sintáctico del archivo input.\\n")
+    print("----------------------------------------------------------------------------------")
+else:
+    print(tree.toStringTree(recog=parser))
 
-        f.write("\nroot = Node(parser.ruleNames[tree.getRuleIndex()])\n")
-        f.write("build_anytree(root, tree)\n\n")
+    def build_anytree(node, antlr_node):
+        if isinstance(antlr_node, TerminalNode):
+            value = antlr_node.getText()
+            Node(value, parent=node)
+        else:
+            rule_name = parser.ruleNames[antlr_node.getRuleIndex()]
+            child_node = Node(rule_name, parent=node)
+            for child in antlr_node.getChildren():
+                build_anytree(child_node, child)
 
-        f.write("# Imprime el árbol anytree\n")
-        f.write("for pre, fill, node in RenderTree(root):\n")
-        f.write("    print(f'{pre}{node.name}')\n\n")
+    root = Node(parser.ruleNames[tree.getRuleIndex()])
+    build_anytree(root, tree)
 
-        f.write("# Genera una representación visual del árbol anytree\n")
-        f.write("dot_exporter = UniqueDotExporter(root)\n")
-        f.write('dot_exporter.to_picture("visual_tree.png")\n')
-        f.write('os.system(f"start visual_tree.png")\n')
+    # Imprime el árbol anytree
+    for pre, fill, node in RenderTree(root):
+        print(f'{pre}{node.name}')
+
+    # Genera una representación visual del árbol anytree
+    dot_exporter = UniqueDotExporter(root)
+    dot_exporter.to_picture("visual_tree.png")
+    os.system(f"start visual_tree.png")
+''')
 
 
 def list_g4_files():

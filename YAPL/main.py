@@ -27,15 +27,13 @@ class CustomErrorListener(antlr4.error.ErrorListener.ErrorListener):
 
     def reportContextSensitivity(self, recognizer, dfa, startIndex, stopIndex, prediction, configs):
         pass
-
+                
     def get_errors(self):
         return self.errors
 
-
 root = Tk()
 root.withdraw()
-input_file = filedialog.askopenfilename(initialdir=os.getcwd(
-), filetypes=(('YAPL files', '*.yapl'), ('All files', '*.*')))
+input_file = filedialog.askopenfilename(initialdir=os.getcwd(),filetypes=(('YAPL files', '*.yapl'),('All files', '*.*')))
 with open(input_file, 'r') as file:
     input_data = file.read()
 input_stream = InputStream(input_data)
@@ -50,9 +48,10 @@ parser.removeErrorListeners()
 parser.addErrorListener(error_listener)
 
 # Aplica la regla inicial de la gramática (expr)
-tree = parser.program()  # Linea a cambiar en funcion de la regla inicial del parser
+tree = parser.program()# Linea a cambiar en funcion de la regla inicial del parser
 
-# Retrieve all errors after parsing
+
+# tdos los errores se imprimen si hay
 errors = error_listener.get_errors()
 for error in errors:
     print(error)
