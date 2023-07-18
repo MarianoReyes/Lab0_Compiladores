@@ -3,7 +3,7 @@ import subprocess
 from tkinter import filedialog, Tk
 
 
-def generate_main_file(directory, start_rule = "expr"):
+def generate_main_file(directory, start_rule="expr"):
     grammar_name = directory.rsplit("/", 1)[1]
     with open(f"{directory}/main.py", "w", encoding="utf-8") as f:
         f.write("import os\n")
@@ -16,7 +16,6 @@ def generate_main_file(directory, start_rule = "expr"):
         f.write("from anytree.exporter import UniqueDotExporter\n")
         f.write("import antlr4\n")
         f.write("from antlr4.tree.Tree import TerminalNode\n\n")
-
 
         f.write('''
 class CustomErrorListener(antlr4.error.ErrorListener.ErrorListener):
@@ -32,7 +31,7 @@ class CustomErrorListener(antlr4.error.ErrorListener.ErrorListener):
         pass
 
     def reportContextSensitivity(self, recognizer, dfa, startIndex, stopIndex, prediction, configs):
-        pass\n''')
+        pass\n\n''')
 
         # Below code to get file as input
         f.write("root = Tk()\n")
@@ -54,13 +53,12 @@ class CustomErrorListener(antlr4.error.ErrorListener.ErrorListener):
 
         f.write(f"parser.removeErrorListeners()\n")
         f.write(f"parser.addErrorListener(error_listener)\n\n")
-        
+
         f.write("# Aplica la regla inicial de la gramática (expr)\n")
         f.write(
             f"tree = parser.{start_rule}()# Linea a cambiar en funcion de la regla inicial del parser\n\n")
 
         f.write("\nprint(tree.toStringTree(recog=parser))\n\n")
-
 
         f.write("\ndef build_anytree(node, antlr_node):\n")
         f.write("    if isinstance(antlr_node, TerminalNode):\n")
@@ -90,10 +88,11 @@ def list_g4_files():
     return [f for f in os.listdir() if f.endswith('.g4')]
 
 
-def generate_antlr_files(start_rule = "expr"):
+def generate_antlr_files(start_rule="expr"):
     root = Tk()
     root.withdraw()  # we don't want a full GUI, so keep the root window from appearing
-    file = filedialog.askopenfilename(initialdir=os.getcwd(),filetypes=(("ANTLR4 files", "*.g4"),("All files", "*.*")))  # open the dialog GUI
+    file = filedialog.askopenfilename(initialdir=os.getcwd(), filetypes=(
+        ("ANTLR4 files", "*.g4"), ("All files", "*.*")))  # open the dialog GUI
     if file:
         directory = file.rsplit(".", maxsplit=1)[0]
         cmd = f'java -jar antlr-4.13.0-complete.jar -Dlanguage=Python3 -o "{directory}" "{file}"'
@@ -106,16 +105,16 @@ def generate_antlr_files(start_rule = "expr"):
             print(output)
 
             # Generate main.py file for the grammar
-            generate_main_file(directory = directory, start_rule = start_rule )
+            generate_main_file(directory=directory, start_rule=start_rule)
 
         except subprocess.CalledProcessError as e:
             print(
                 f"Error generating ANTLR files for {file}. Command '{cmd}' returned non-zero exit status {e.returncode}.")
 
 
-
-def compile_YAPL(start_rule = "program"):
+def compile_YAPL(start_rule="program"):
     generate_antlr_files(start_rule=start_rule)
+
 
 def main():
     compile_YAPL()
