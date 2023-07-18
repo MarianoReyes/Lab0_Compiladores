@@ -6,6 +6,15 @@ from SimpleMathParser import SimpleMathParser
 from anytree import Node, RenderTree
 from antlr4.tree.Tree import TerminalNode
 
+from antlr4 import CommonTokenStream, InputStream, ErrorListener
+# Error Listener personalizado en español
+class MiErrorListener(ErrorListener):
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        raise Exception(f"Error en la línea {line}, posición {column}: {msg}")
+# Quitamos los listeners por defecto y agregamos nuestro error listener personalizado
+parser.removeErrorListeners()
+parser.addErrorListener(MiErrorListener())
+
 # Obtén la entrada del usuario
 input_stream = InputStream(input('Ingrese cadena a evaluar en árbol: '))
 
@@ -17,6 +26,15 @@ stream = CommonTokenStream(lexer)
 
 # Crea un parser con el stream de tokens
 parser = SimpleMathParser(stream)
+
+
+# Error Listener personalizado en español
+class MiErrorListener(ErrorListener):
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        raise Exception(f"Error en la línea {line}, posición {column}: {msg}")
+# Quitamos los listeners por defecto y agregamos nuestro error listener personalizado
+parser.removeErrorListeners()
+parser.addErrorListener(MiErrorListener())
 
 # Aplica la regla inicial de la gramática (expr)
 tree = parser.expr()# Linea a cambiar en funcion de la regla inicial del parser
