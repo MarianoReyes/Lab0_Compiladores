@@ -10,20 +10,36 @@ def generate_main_file(directory):
         f.write(f"from {directory}Lexer import {directory}Lexer\n")
         f.write(f"from {directory}Parser import {directory}Parser\n")
         f.write("from anytree import Node, RenderTree\n")
+        f.write("from antlr4.error.ErrorListener import ErrorListener\n")
         f.write("from antlr4.tree.Tree import TerminalNode\n\n")
+
+        # Personalización del manejador de errores de ANTLR para mensajes en español
+        f.write("class SpanishErrorListener(ErrorListener):\n")
+        f.write(
+            "    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):\n")
+        f.write(
+            "        error_msg = f'Error sintáctico en línea {line}, columna {column}: {msg}'\n")
+        f.write("        raise ValueError(error_msg)\n\n")
 
         f.write("# Obtén la entrada del usuario\n")
         f.write(
             "input_stream = InputStream(input('Ingrese cadena a evaluar en árbol: '))\n\n")
 
-        f.write("# Crea un lexer con la entrada\n")
-        f.write(f"lexer = {directory}Lexer(input_stream)\n\n")
+        # Agregamos el código para la creación del lexer y parser personalizados
+        f.write(
+            "# Crea un lexer con la entrada y aplica el manejador de errores personalizado\n")
+        f.write(f"lexer = {directory}Lexer(input_stream)\n")
+        f.write("lexer.removeErrorListeners()\n")
+        f.write("lexer.addErrorListener(SpanishErrorListener())\n\n")
 
         f.write("# Crea un stream de tokens a partir del lexer\n")
         f.write("stream = CommonTokenStream(lexer)\n\n")
 
-        f.write("# Crea un parser con el stream de tokens\n")
-        f.write(f"parser = {directory}Parser(stream)\n\n")
+        f.write(
+            "# Crea un parser con el stream de tokens y aplica el manejador de errores personalizado\n")
+        f.write(f"parser = {directory}Parser(stream)\n")
+        f.write("parser.removeErrorListeners()\n")
+        f.write("parser.addErrorListener(SpanishErrorListener())\n\n")
 
         f.write("# Aplica la regla inicial de la gramática (expr)\n")
         f.write(

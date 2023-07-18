@@ -4,19 +4,31 @@ from antlr4 import *
 from ArithmeticGrammarLexer import ArithmeticGrammarLexer
 from ArithmeticGrammarParser import ArithmeticGrammarParser
 from anytree import Node, RenderTree
+from antlr4.error.ErrorListener import ErrorListener
 from antlr4.tree.Tree import TerminalNode
+
+
+class SpanishErrorListener(ErrorListener):
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        error_msg = f'Error sintáctico en línea {line}, columna {column}: {msg}'
+        raise ValueError(error_msg)
+
 
 # Obtén la entrada del usuario
 input_stream = InputStream(input('Ingrese cadena a evaluar en árbol: '))
 
-# Crea un lexer con la entrada
+# Crea un lexer con la entrada y aplica el manejador de errores personalizado
 lexer = ArithmeticGrammarLexer(input_stream)
+lexer.removeErrorListeners()
+lexer.addErrorListener(SpanishErrorListener())
 
 # Crea un stream de tokens a partir del lexer
 stream = CommonTokenStream(lexer)
 
-# Crea un parser con el stream de tokens
+# Crea un parser con el stream de tokens y aplica el manejador de errores personalizado
 parser = ArithmeticGrammarParser(stream)
+parser.removeErrorListeners()
+parser.addErrorListener(SpanishErrorListener())
 
 # Aplica la regla inicial de la gramática (expr)
 tree = parser.expression()  # Linea a cambiar en funcion de la regla inicial del parser
