@@ -1,52 +1,50 @@
 grammar YAPL;
 
-program: classDeclaration+ EOF;
+// Parser rules
 
-classDeclaration
-    : 'class' ID ('inherits' ID)? '{' feature* '}'
-    ;
+program: classDef* EOF;
 
-feature
-    : ID ':' type ';'                                         // attribute
-    | ID '(' (formalParameter (',' formalParameter)* )? ')' ':' type '{' expression '}'    // method
-    ;
+classDef: 'class' ID ('inherits' ID)? '{' feature* '}';
 
-formalParameter
-    : ID ':' type
-    ;
+feature: attr | method;
 
-type
-    : ID
-    | 'SELF_TYPE'
-    ;
+attr: ID ':' type ('<-' expr)? ';';
 
-expression
-    : 'if' expression 'then' expression 'else' expression 'fi'
-    | 'while' expression 'loop' expression 'pool'
-    | '{' expression (';' expression)* '}'
-    | 'let' ID ':' type ('<-' expression)? ('in' expression)?
-    | 'new' type
-    | 'isvoid' expression
-    | ID '<-' expression
-    | expression '.' ID '(' (expression (',' expression)*)? ')'
-    | expression '@' type '.' ID '(' (expression (',' expression)*)? ')'
-    | expression '<' expression
-    | expression '<=' expression
-    | expression '=' expression
-    | expression '+' expression
-    | expression '-' expression
-    | expression '*' expression
-    | expression '/' expression
-    | '~' expression
-    | '(' expression ')'
+method: ID '(' formals ')' ':' type '{' expr '}';
+
+formals: formal (',' formal)*;
+
+formal: ID ':' type;
+
+type: ID | 'SELF_TYPE' | 'Int' | 'String' | 'Bool' | 'IO' | 'Object';
+
+expr: 
+    | 'if' expr 'then' expr 'else' expr 'fi'
+    | 'while' expr 'loop' expr 'pool'
+    | '{' expr (';' expr)* '}'
+    | 'let' ID ':' type ('<-' expr)? (',' ID ':' type ('<-' expr)?)* 'in' expr
+    | ID '<-' expr
+    | expr '.' ID '(' expr (',' expr)* ')'
+    | expr '@' type '.' ID '(' expr (',' expr)* ')'
+    | ID '(' expr (',' expr)* ')'
+    | 'isvoid' expr
+    | 'new' ID
     | ID
     | INT
     | STRING
     | 'true'
     | 'false'
+    | '(' expr ')'
     ;
 
-ID: [a-zA-Z][a-zA-Z0-9_]* ;
-INT: [0-9]+ ;
-STRING: '"' .*? '"' ;
-WS: [ \t\r\n]+ -> skip ;
+// Lexer rules
+
+ID: [a-z][a-zA-Z0-9]*;
+
+INT: [0-9]+;
+
+STRING: '"' .*? '"';
+
+WS : [ \t\r\n]+ -> skip;
+
+COMMENT: '/*' .*? '*/' -> skip;
