@@ -5,10 +5,10 @@ class Circle inherits Shape {
     diameter: Int <- radius * 2;
 
     getArea(): Int {
-        return 3.14 * radius * radius;
+        return 3 * radius * radius;
     }
 
-    getColor(): STRING {
+    getColor(): String {
         return color;
     }
 }
