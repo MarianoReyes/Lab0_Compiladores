@@ -80,7 +80,8 @@ else:
     def build_anytree(node, antlr_node):
         if isinstance(antlr_node, TerminalNode):
             value = antlr_node.getText()
-            value = value.replace('"', '')
+            # Replace double quotes with single quotes
+            value = value.replace('"', "'")
             Node(value, parent=node)
         else:
             rule_name = parser.ruleNames[antlr_node.getRuleIndex()]
