@@ -15,6 +15,7 @@ def generate_main_file(directory, start_rule="expr"):
         f.write("from anytree import Node, RenderTree\n")
         f.write("from anytree.exporter import UniqueDotExporter\n")
         f.write("import antlr4\n")
+        f.write("import re\n")
         f.write("from antlr4.tree.Tree import TerminalNode\n\n")
 
         f.write('''
@@ -23,8 +24,20 @@ class CustomErrorListener(antlr4.error.ErrorListener.ErrorListener):
         self.errors = []
 
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
-        # Customize the error message here
-        custom_msg = f"Error en la linea {line}, columna {column}, mensaje: {msg}"
+        # error en español
+        translations = {
+            r"missing (.+) at (.+)": r"falta \\1 en \\2",
+            r"mismatched input (.+) expecting (.+)": r"entrada no coincidente \\1, se esperaba \\2",
+            r"extraneous input '(.+)' expecting (.+)": r"entrada innecesaria '\\1', se esperaba \\2",
+            # Agrega más traducciones aquí si lo deseas
+        }
+
+        # Buscar coincidencias con las expresiones regulares y traducir el mensaje
+        for pattern, translation in translations.items():
+            msg = re.sub(pattern, translation, msg)
+
+        # Personalizar el mensaje de error aquí
+        custom_msg = f"Error en la línea {line}, columna {column}, mensaje: {msg}"
         self.errors.append(custom_msg)
 
     def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
