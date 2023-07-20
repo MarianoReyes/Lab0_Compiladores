@@ -5,6 +5,11 @@ class Circle inherits Shape {
     diameter: Int <- radius * 2;
 
     getArea(): Int {
+        if true then 
+            radius <- 8
+        else 
+            radius <- 4
+        fi;
         return 3 * radius * radius;
     }
 
@@ -18,6 +23,9 @@ class Rectangle inherits Shape {
     width: Int <- 10;
     
     getArea(): Int {
+        while length < width loop {
+            length <- length + 1
+        } pool;
         return length * width;
     }
 }

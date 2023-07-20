@@ -10,8 +10,8 @@ formals: formal? (',' formal)*;
 formal: ID ':' type;
 type: ID | 'SELF_TYPE' | 'Int' | 'String' | 'Bool' | 'IO' | 'Object';
 expr: 
-      'if' expr 'then' expr 'else' expr 'fi'
-    | 'while' expr 'loop' expr 'pool'
+      'if' (expr | bool_value) 'then' expr 'else' expr 'fi'
+    | 'while' (expr | bool_value )'loop' expr 'pool'
     | '{' expr (';' expr)* '}'
     | 'let' ID ':' type ('<-' expr)? (',' ID ':' type ('<-' expr)?)* 'in' expr
     | ID '<-' expr
@@ -31,6 +31,24 @@ expr:
 
 func_return:
     'return' expr ';'
+    ;
+comparation_operators:
+    | '<'
+    | '>'
+    | '<='
+    | '>='
+    | '=='
+    | '!='
+    ;
+bool_value: 
+    | 'true'
+    | 'false'
+    | comparation
+    ;
+
+comparation: 
+    | ID comparation_operators (INT|STRING)
+    | ID comparation_operators ID
     ;
 
 // Lexer rules

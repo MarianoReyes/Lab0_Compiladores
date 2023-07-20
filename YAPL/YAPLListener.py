@@ -98,5 +98,32 @@ class YAPLListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by YAPLParser#comparation_operators.
+    def enterComparation_operators(self, ctx:YAPLParser.Comparation_operatorsContext):
+        pass
+
+    # Exit a parse tree produced by YAPLParser#comparation_operators.
+    def exitComparation_operators(self, ctx:YAPLParser.Comparation_operatorsContext):
+        pass
+
+
+    # Enter a parse tree produced by YAPLParser#bool_value.
+    def enterBool_value(self, ctx:YAPLParser.Bool_valueContext):
+        pass
+
+    # Exit a parse tree produced by YAPLParser#bool_value.
+    def exitBool_value(self, ctx:YAPLParser.Bool_valueContext):
+        pass
+
+
+    # Enter a parse tree produced by YAPLParser#comparation.
+    def enterComparation(self, ctx:YAPLParser.ComparationContext):
+        pass
+
+    # Exit a parse tree produced by YAPLParser#comparation.
+    def exitComparation(self, ctx:YAPLParser.ComparationContext):
+        pass
+
+
 
 del YAPLParser
