@@ -1,4 +1,4 @@
-# Generated from C:/Users/lp109/OneDrive/Documentos/0lps/01 U/0LaU/000Octavo semestre/Compis/labs/Lab0_Compiladores/YAPL.g4 by ANTLR 4.13.0
+# Generated from C:/Users/Jose/Documents/GitHub/Fork/Lab0_Compiladores/YAPL.g4 by ANTLR 4.13.0
 from antlr4 import *
 if "." in __name__:
     from .YAPLParser import YAPLParser
