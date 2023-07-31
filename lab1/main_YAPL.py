@@ -15,25 +15,24 @@ from antlr4.tree.Tree import TerminalNode
 
 class SymbolTable:
     def __init__(self):
-        self.current_scope = {}  # Dictionary to store symbols in the current scope
-        self.scopes = []  # List to keep track of nested scopes
+        self.scopes = [{}]
 
     def enter_scope(self):
-        self.scopes.append(self.current_scope)
-        self.current_scope = {}
+        self.scopes.append({})
 
     def exit_scope(self):
-        if self.scopes:
-            self.current_scope = self.scopes.pop()
+        if len(self.scopes) > 1:
+            self.scopes.pop()
 
     def add_symbol(self, name, symbol):
-        self.current_scope[name] = symbol
+        self.scopes[-1][name] = symbol
 
     def lookup_symbol(self, name):
-        for scope in reversed(self.scopes + [self.current_scope]):
+        for scope in reversed(self.scopes):
             if name in scope:
                 return scope[name]
         return None
+
 
 # Define a symbol class to represent symbols
 
@@ -136,7 +135,7 @@ else:
     dot_exporter.to_picture("visual_tree.png")
     os.system(f"start visual_tree.png")
 
-    # LAB 1, TABLA DE SIMBLOS
+    # LAB 1, TABLA DE SIMBOLOS
     # Create the symbol table and enter the global scope
     symbol_table = SymbolTable()
 
@@ -152,15 +151,16 @@ else:
             # Get the attribute name from node name
             attr_name = node.children[0].name
             # Get the attribute type from node name
-            attr_type = node.children[2].name
+            attr_type = node.children[2].children[0].name
             symbol_table.add_symbol(attr_name, Symbol(attr_name, attr_type))
 
         elif node.name == "method":
             # Get the method name from node name
             method_name = node.children[0].name
             # Get the method return type from node name
-            method_return_type = node.children[3].name
-            symbol_table.add_symbol(method_name, Symbol(method_name, "method"))
+            method_return_type = node.children[5].children[0].name
+            symbol_table.add_symbol(method_name, Symbol(
+                method_name, f"method -> {method_return_type}"))
 
         for child in node.children:
             build_symbol_table(child)
@@ -171,11 +171,12 @@ else:
     # Build the symbol table from the AST
     build_symbol_table(root)
 
-    # Collect symbols and their types into a list
+    # Collect symbols and their types into a list from all scopes
     symbol_list = []
-    for scope in symbol_table.scopes + [symbol_table.current_scope]:
+    for scope_index, scope in enumerate(symbol_table.scopes, start=1):
         for symbol_name, symbol in scope.items():
-            symbol_list.append(f"{symbol_name} \t>>\t {symbol.type}")
+            symbol_list.append(
+                f"Scope {scope_index}: {symbol_name} \t>>\t {symbol.type}")
 
     # Print the list of symbols and types
     print("\nTabla de Simbolos:")
