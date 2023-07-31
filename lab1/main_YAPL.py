@@ -10,33 +10,11 @@ import antlr4
 import re
 from antlr4.tree.Tree import TerminalNode
 
-# Define a symbol table class to store symbols in the current scope
-
-
-class SymbolTable:
-    def __init__(self):
-        self.scopes = [{}]
-
-    def enter_scope(self):
-        self.scopes.append({})
-
-    def exit_scope(self):
-        if len(self.scopes) > 1:
-            self.scopes.pop()
-
-    def add_symbol(self, name, symbol):
-        self.scopes[-1][name] = symbol
-
-    def lookup_symbol(self, name):
-        for scope in reversed(self.scopes):
-            if name in scope:
-                return scope[name]
-        return None
+# Define a symbol table as a global dictionary to store symbols
+symbol_table = {}
 
 
 # Define a symbol class to represent symbols
-
-
 class Symbol:
     def __init__(self, name, type_, value=None):
         self.name = name
@@ -98,7 +76,6 @@ parser.addErrorListener(error_listener)
 # Aplica la regla inicial de la gramática (expr)
 tree = parser.program()  # Linea a cambiar en funcion de la regla inicial del parser
 
-
 # tdos los errores se imprimen si hay
 errors = error_listener.get_errors()
 for error in errors:
@@ -136,47 +113,62 @@ else:
     os.system(f"start visual_tree.png")
 
     # LAB 1, TABLA DE SIMBOLOS
-    # Create the symbol table and enter the global scope
-    symbol_table = SymbolTable()
-
     # Function to build the symbol table from the AST
     def build_symbol_table(node):
-        if node.name == "classDef":
+        global current_class  # Declare current_class as global
+
+        if node.name == "program":
+            for child in node.children:
+                build_symbol_table(child)
+
+        elif node.name == "classDef":
             # Get the class identifier from node name
             class_name = node.children[1].name
-            symbol_table.add_symbol(class_name, Symbol(class_name, "class"))
-            symbol_table.enter_scope()
+            symbol_table[class_name] = Symbol(class_name, "class")
+
+            # Enter the class scope
+            current_class = class_name
+
+            for child in node.children:
+                build_symbol_table(child)
+
+            # Exit the class scope
+            current_class = None
 
         elif node.name == "attr":
             # Get the attribute name from node name
             attr_name = node.children[0].name
             # Get the attribute type from node name
             attr_type = node.children[2].children[0].name
-            symbol_table.add_symbol(attr_name, Symbol(attr_name, attr_type))
+            symbol_table[attr_name] = Symbol(attr_name, attr_type)
 
         elif node.name == "method":
             # Get the method name from node name
             method_name = node.children[0].name
             # Get the method return type from node name
             method_return_type = node.children[5].children[0].name
-            symbol_table.add_symbol(method_name, Symbol(
-                method_name, f"method -> {method_return_type}"))
 
-        for child in node.children:
-            build_symbol_table(child)
+            # Determine the full method signature including parameter types
+            param_types = [
+                param.children[0].name for param in node.children[2].children]
+            full_signature = f"método -> ({', '.join(param_types)}) -> {method_return_type}"
 
-        if node.name == "classDef":
-            symbol_table.exit_scope()
+            if current_class is not None:
+                # If inside a class scope, prepend class name to the method name
+                full_signature = f"{current_class}.{full_signature}"
+
+            symbol_table[method_name] = Symbol(method_name, full_signature)
+
+        else:
+            for child in node.children:
+                build_symbol_table(child)
 
     # Build the symbol table from the AST
     build_symbol_table(root)
 
-    # Collect symbols and their types into a list from all scopes
-    symbol_list = []
-    for scope_index, scope in enumerate(symbol_table.scopes, start=1):
-        for symbol_name, symbol in scope.items():
-            symbol_list.append(
-                f"Scope {scope_index}: {symbol_name} \t>>\t {symbol.type}")
+    # Collect symbols and their types into a list
+    symbol_list = [f"{symbol_name} \t>>\t {symbol.type}" for symbol_name,
+                   symbol in symbol_table.items()]
 
     # Print the list of symbols and types
     print("\nTabla de Simbolos:")
