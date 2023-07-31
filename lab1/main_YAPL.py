@@ -113,48 +113,48 @@ else:
     os.system(f"start visual_tree.png")
 
     # LAB 1, TABLA DE SIMBOLOS
-    # Function to build the symbol table from the AST
+    # funcion para la tabla de simbolos
     def build_symbol_table(node):
-        global current_class  # Declare current_class as global
+        global current_class  # class actual como global
 
         if node.name == "program":
             for child in node.children:
                 build_symbol_table(child)
 
         elif node.name == "classDef":
-            # Get the class identifier from node name
+            # nombre de la clase
             class_name = node.children[1].name
             symbol_table[class_name] = Symbol(class_name, "class")
 
-            # Enter the class scope
+            # scope en la clase
             current_class = class_name
 
             for child in node.children:
                 build_symbol_table(child)
 
-            # Exit the class scope
+            # salir del scope
             current_class = None
 
         elif node.name == "attr":
-            # Get the attribute name from node name
+            # nombre del atributo
             attr_name = node.children[0].name
-            # Get the attribute type from node name
+            # tipo del atributo
             attr_type = node.children[2].children[0].name
             symbol_table[attr_name] = Symbol(attr_name, attr_type)
 
         elif node.name == "method":
-            # Get the method name from node name
+            # nombre del metodo
             method_name = node.children[0].name
-            # Get the method return type from node name
+            # tipo del metodo
             method_return_type = node.children[5].children[0].name
 
-            # Determine the full method signature including parameter types
+            # todo acerca del metodo
             param_types = [
                 param.children[0].name for param in node.children[2].children]
             full_signature = f"método -> ({', '.join(param_types)}) -> {method_return_type}"
 
             if current_class is not None:
-                # If inside a class scope, prepend class name to the method name
+                # si se esta adentro de una clase, apendear el nombre de la clase
                 full_signature = f"{current_class}.{full_signature}"
 
             symbol_table[method_name] = Symbol(method_name, full_signature)
@@ -163,14 +163,14 @@ else:
             for child in node.children:
                 build_symbol_table(child)
 
-    # Build the symbol table from the AST
+    # construir la tabla de simbolos
     build_symbol_table(root)
 
-    # Collect symbols and their types into a list
+    # sacar la lista de simbolos
     symbol_list = [f"{symbol_name} \t>>\t {symbol.type}" for symbol_name,
                    symbol in symbol_table.items()]
 
-    # Print the list of symbols and types
+    # imprimir la tabla de simbolos
     print("\nTabla de Simbolos:")
     print("NOMBRE \t>>\t TIPO")
     for symbol_info in symbol_list:
