@@ -175,10 +175,10 @@ else:
     symbol_list = []
     for scope in symbol_table.scopes + [symbol_table.current_scope]:
         for symbol_name, symbol in scope.items():
-            symbol_list.append(f"{symbol_name} -> {symbol.type}")
+            symbol_list.append(f"{symbol_name} \t>>\t {symbol.type}")
 
     # Print the list of symbols and types
     print("\nTabla de Simbolos:")
-    print("Nombre -> Tipo")
+    print("NOMBRE \t>>\t TIPO")
     for symbol_info in symbol_list:
         print(symbol_info)
