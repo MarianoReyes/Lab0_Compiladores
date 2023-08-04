@@ -105,11 +105,14 @@ else:
 
     # Build the symbol table
     symbol_table = SymbolTable(root)
-    
+
     print(symbol_table)
 
     # Inserta símbolo en global scope
     symbol_table.insert(name="MySymbol", data_type="int", semantic_type="var", value=5, scope=symbol_table.global_scope)
+
+
+    print(symbol_table)
 
     searched_symbol = symbol_table.search("MySymbol")
     print("\nBúsqueda de símbolo en tabla:")

@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from collections import defaultdict
 from prettytable import PrettyTable
 from typing import List
+import anytree
 
 @dataclass
 class Symbol:
@@ -70,16 +71,17 @@ class SymbolTable:
             return parameters
 
     def __get_expresion_to_str(self, expr_node)-> str:
-        
-        children = expr_node.children
-        if expr_node.name == "expr":
-            content = []
-            for child in children:
-                content.append(self.__get_expresion_to_str(child))
-            return "".join(content)     
-        
-        return expr_node.name
-
+        if isinstance(expr_node, anytree.Node):
+            children = expr_node.children
+            if expr_node.name == "expr":
+                content = []
+                for child in children:
+                    content.append(self.__get_expresion_to_str(child))
+                return "".join(content)     
+            
+            return expr_node.name
+        else:
+            return expr_node
 
 
     def build_symbol_table(self, node, current_scope = None):
@@ -146,7 +148,6 @@ class SymbolTable:
         for scope_id,  symbols in self.content.items():
             for symbol_name, symbol in symbols.items():
                 table.add_row([scope_id, symbol_name, symbol.semantic_type, self.__get_expresion_to_str(symbol.value) if symbol.value else symbol.value, symbol.data_type, symbol.parameters])
-                print("a")
         return str(table)
 
 
