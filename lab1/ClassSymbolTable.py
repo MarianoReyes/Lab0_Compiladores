@@ -35,6 +35,12 @@ class Scope:
         if name in self.content:
             return self.content[name]
         return None
+    
+    def delete_content(self, name: str) -> bool:
+        if name in self.content:
+            del self.content[name]
+            return True 
+        return False      
 
 class SymbolTable:
     def __init__(self, root) -> None:
@@ -130,23 +136,9 @@ class SymbolTable:
             attr_value =  children[-2] if len(children)>3 else None # Cambiar esta parte
 
             self.insert(name = attr_name, data_type=attr_type, semantic_type="attr" ,value=attr_value, line=None, scope=current_scope, is_function=False, parameters=[], parameter_passing_method=None,  )
-            
-
-
-            print("")
-
-
         else:
             for child in node.children:
                 self.build_symbol_table(child, current_scope)
-
-    def get_all_symbols(self):
-        symbol_list = []
-        for scope_id, symbols in self.content.items():
-            for symbol_name, symbol in symbols.items():
-                symbol_info = f"{scope_id}.{symbol_name} \t>>\t {symbol.data_type}"
-                symbol_list.append(symbol_info)
-        return symbol_list
 
     def __str__(self):
         table = PrettyTable()
@@ -159,13 +151,13 @@ class SymbolTable:
 
 
     def insert(self, name, data_type, semantic_type, value, line = None, scope = None, is_function = False, parameters = [], parameter_passing_method = None):
-        scope = self.__get_scope(scope)
+        scope = self.__check_or_get_default_scope(scope)
         symbol = Symbol(name = name, value = value, data_type = data_type,semantic_type=semantic_type, line=line, scope=scope.scope_id, is_function = is_function, parameters=parameters, parameter_passing_method=parameter_passing_method)
         scope.add_content(symbol)
         self.content[scope.scope_id][symbol.name] = symbol  # <- Change here
  
     def search(self, name, scope = None):
-        scope: Scope = self.__get_scope(scope)
+        scope: Scope = self.__check_or_get_default_scope(scope)
         item: Symbol = None
         found_item = False
         while not found_item and scope != None:
@@ -177,12 +169,24 @@ class SymbolTable:
         
         return item
 
+    def delete_content(self, name, scope=None): 
+        scope: Scope = self.__check_or_get_default_scope(scope)
+        if name in self.content[scope.scope_id]:
+            del self.content[scope.scope_id][name]
+            scope.delete_content(name)  
+            return True  
+        return False  
+
     def start_scope(self, parent_scope = None, scope_id = None):
         new_scope = Scope(previous=parent_scope, scope_id=scope_id)
         self.scopes[scope_id] = new_scope
         return new_scope
         
-    def __get_scope(self, scope):
+    def __check_or_get_default_scope(self, scope: Scope):
         if scope == None:
             return self.global_scope
+        
+        if scope.scope_id not in self.scopes:
+            return self.global_scope
         return scope
+    

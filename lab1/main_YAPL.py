@@ -105,17 +105,21 @@ else:
 
     # Build the symbol table
     symbol_table = SymbolTable(root)
+    
+    print(symbol_table)
 
-    # Get the list of symbols
-    """     symbol_list = symbol_table.get_all_symbols()  # Get the list of symbol info strings
+    # Inserta símbolo en global scope
+    symbol_table.insert(name="MySymbol", data_type="int", semantic_type="var", value=5, scope=symbol_table.global_scope)
 
-    # Print the symbol table
-    print("\nSymbol Table:")
-    print("NAME \t>>\t TYPE")
-    for symbol_info in symbol_list:
-        print(symbol_info) """
+    searched_symbol = symbol_table.search("MySymbol")
+    print("\nBúsqueda de símbolo en tabla:")
+    print(searched_symbol)
+
+    symbol_table.delete_content("MySymbol")
+
+    searched_symbol = symbol_table.search("MySymbol")
+    print("\Símbolo tras eliminacion:")
+    print(searched_symbol)
 
     print(symbol_table)
 
-    print(symbol_table.search("Circle"))
-    
