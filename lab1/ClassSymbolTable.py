@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from collections import defaultdict
+from prettytable import PrettyTable
 from typing import List
 
 @dataclass
@@ -21,6 +22,8 @@ class Scope:
         self.scope_id = scope_id  # identificador de alcance
         self.content = {}
 
+    def __str__(self) -> str:
+        pass
     def get_previous(self):
         return self.previous
 
@@ -59,6 +62,18 @@ class SymbolTable:
 
                     parameters.append(tuple(parameter_parts))
             return parameters
+
+    def __get_expresion_to_str(self, expr_node)-> str:
+        
+        children = expr_node.children
+        if expr_node.name == "expr":
+            content = []
+            for child in children:
+                content.append(self.__get_expresion_to_str(child))
+            return "".join(content)     
+        
+        return expr_node.name
+
 
 
     def build_symbol_table(self, node, current_scope = None):
@@ -100,7 +115,7 @@ class SymbolTable:
             method_scope = self.start_scope(parent_scope=current_scope, scope_id=method_scope_id)
             parameters = self.__get_parameters_from_method(node)
 
-            self.insert(name = method_name, semantic_type="method", data_type = full_signature, value=None, line = None, scope = method_scope, parameters=parameters )
+            self.insert(name = method_name, semantic_type="method", data_type = full_signature, value=None, line = None, scope = method_scope, parameters=parameters, is_function=True )
 
             for child in node.children:
                 self.build_symbol_table(child, method_scope)
@@ -133,8 +148,14 @@ class SymbolTable:
                 symbol_list.append(symbol_info)
         return symbol_list
 
-    def print_tbl(self):
-        pass
+    def __str__(self):
+        table = PrettyTable()
+        table.field_names = ["Scope", "Name", "Semantic Type", "Value", "Data type", "Parameters"]
+        for scope_id,  symbols in self.content.items():
+            for symbol_name, symbol in symbols.items():
+                table.add_row([scope_id, symbol_name, symbol.semantic_type, self.__get_expresion_to_str(symbol.value) if symbol.value else symbol.value, symbol.data_type, symbol.parameters])
+                print("a")
+        return str(table)
 
 
     def insert(self, name, data_type, semantic_type, value, line = None, scope = None, is_function = False, parameters = [], parameter_passing_method = None):

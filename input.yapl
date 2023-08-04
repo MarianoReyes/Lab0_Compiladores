@@ -4,7 +4,7 @@ class Circle inherits Shape {
     
     diameter: Int <- radius * 2;
 
-    getDarea(diameter:Int): Int {
+    getArea(diameter:Int): Int {
         if true then 
             radius <- 8
         else 

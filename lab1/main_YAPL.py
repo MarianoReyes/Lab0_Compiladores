@@ -115,5 +115,7 @@ else:
     for symbol_info in symbol_list:
         print(symbol_info) """
 
+    print(symbol_table)
+
     print(symbol_table.search("Circle"))
     
