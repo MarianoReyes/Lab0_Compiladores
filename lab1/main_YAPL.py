@@ -10,6 +10,19 @@ import re
 from antlr4.tree.Tree import TerminalNode
 from ClassSymbolTable import SymbolTable, Scope  # Make sure to import the SymbolTable and Scope classes
 
+
+def build_anytree(node, antlr_node):
+    if isinstance(antlr_node, TerminalNode):
+        value = antlr_node.getText()
+        # Replace double quotes with single quotes
+        value = value.replace('"', "'")
+        Node(value, parent=node)
+    else:
+        rule_name = parser.ruleNames[antlr_node.getRuleIndex()]
+        child_node = Node(rule_name, parent=node)
+        for child in antlr_node.getChildren():
+            build_anytree(child_node, child)
+
 # Define a custom error listener
 class CustomErrorListener(antlr4.error.ErrorListener.ErrorListener):
     def __init__(self):
@@ -76,17 +89,7 @@ if errors:
 else:
     print(tree.toStringTree(recog=parser))
 
-    def build_anytree(node, antlr_node):
-        if isinstance(antlr_node, TerminalNode):
-            value = antlr_node.getText()
-            # Replace double quotes with single quotes
-            value = value.replace('"', "'")
-            Node(value, parent=node)
-        else:
-            rule_name = parser.ruleNames[antlr_node.getRuleIndex()]
-            child_node = Node(rule_name, parent=node)
-            for child in antlr_node.getChildren():
-                build_anytree(child_node, child)
+
 
     root = Node(parser.ruleNames[tree.getRuleIndex()])
     build_anytree(root, tree)
@@ -104,10 +107,13 @@ else:
     symbol_table = SymbolTable(root)
 
     # Get the list of symbols
-    symbol_list = symbol_table.get_all_symbols()  # Get the list of symbol info strings
+    """     symbol_list = symbol_table.get_all_symbols()  # Get the list of symbol info strings
 
     # Print the symbol table
     print("\nSymbol Table:")
     print("NAME \t>>\t TYPE")
     for symbol_info in symbol_list:
-        print(symbol_info)
+        print(symbol_info) """
+
+    print(symbol_table.search("Circle"))
+    
